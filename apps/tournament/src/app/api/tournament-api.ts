@@ -7,9 +7,12 @@ const tournamentRepository = new TournamentRepository();
 
 export const postTournament = (req: Request, res: Response) => {
   const tournamentToAdd: TournamentToAdd = req.body;
-  if (!tournamentToAdd.name || tournamentToAdd.name == "") {
+  if (tournamentToAdd.name == undefined || tournamentToAdd.name == "") {
     res.status(400);
     res.send({ error: "le champ nom est manquant ou vide" });
+  } else if (tournamentRepository.tournamentExist(tournamentToAdd.name)) {
+    res.status(400);
+    res.send({ error: "le nom est déjà pris" });
   } else {
     const tournament = {
       id: uuidv4(),
@@ -18,7 +21,6 @@ export const postTournament = (req: Request, res: Response) => {
       participants: [],
     };
     tournamentRepository.saveTournament(tournament);
-
     res.status(201);
     res.send({ id: tournament.id });
   }
