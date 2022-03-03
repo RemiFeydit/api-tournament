@@ -103,11 +103,12 @@ const bodyParser = __webpack_require__(/*! body-parser */ "body-parser");
 exports.app = express();
 exports.app.use(bodyParser.json());
 exports.app.use(bodyParser.urlencoded({ extended: true }));
-exports.app.get('/api', (req, res) => {
-    res.send({ message: 'Welcome to tournament!' });
+exports.app.get("/api", (req, res) => {
+    res.send({ message: "Welcome to tournament!" });
 });
-exports.app.post('/api/tournaments', tournament_api_1.postTournament);
-exports.app.get('/api/tournaments/:id', tournament_api_1.getTournament);
+exports.app.post("/api/tournaments", tournament_api_1.postTournament);
+exports.app.get("/api/tournaments/:id", tournament_api_1.getTournament);
+// app.delete("/api/tournaments/:id", deleteTournament);
 
 
 /***/ }),
@@ -128,15 +129,25 @@ const uuid_1 = __webpack_require__(/*! uuid */ "uuid");
 const tournamentRepository = new tournament_repository_1.TournamentRepository();
 const postTournament = (req, res) => {
     const tournamentToAdd = req.body;
-    const tournament = {
-        id: uuid_1.v4(),
-        name: tournamentToAdd.name,
-        phases: [],
-        participants: [],
-    };
-    tournamentRepository.saveTournament(tournament);
-    res.status(201);
-    res.send({ id: tournament.id });
+    if (tournamentToAdd.name == undefined || tournamentToAdd.name == "") {
+        res.status(400);
+        res.send({ error: "le champ nom est manquant ou vide" });
+    }
+    else if (tournamentRepository.tournamentExist(tournamentToAdd.name)) {
+        res.status(400);
+        res.send({ error: "le nom est déjà pris" });
+    }
+    else {
+        const tournament = {
+            id: uuid_1.v4(),
+            name: tournamentToAdd.name,
+            phases: [],
+            participants: [],
+        };
+        tournamentRepository.saveTournament(tournament);
+        res.status(201);
+        res.send({ id: tournament.id });
+    }
 };
 exports.postTournament = postTournament;
 const getTournament = (req, res) => {
@@ -146,6 +157,12 @@ const getTournament = (req, res) => {
     res.send(tournament);
 };
 exports.getTournament = getTournament;
+// export const deleteTournament = (req: Request, res: Response) => {
+//   const id = req.params["id"];
+//   const tournament = tournamentRepository.deleteTournament(id);
+//   res.status(200);
+//   res.send({ id: id });
+// };
 
 
 /***/ }),
@@ -164,12 +181,23 @@ exports.TournamentRepository = void 0;
 class TournamentRepository {
     constructor() {
         this.tournaments = new Map();
+        // public deleteTournament(tournamentId: string): void {
+        //   this.tournaments.delete(tournamentId);
+        // }
     }
     saveTournament(tournament) {
         this.tournaments.set(tournament.id, tournament);
     }
     getTournament(tournamentId) {
         return this.tournaments.get(tournamentId);
+    }
+    tournamentExist(tournamentName) {
+        for (let [key, value] of this.tournaments) {
+            if (value.name == tournamentName) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 exports.TournamentRepository = TournamentRepository;
