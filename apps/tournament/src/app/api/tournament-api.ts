@@ -10,7 +10,9 @@ export const postTournament = (req: Request, res: Response) => {
   if (tournamentToAdd.name == undefined || tournamentToAdd.name == "") {
     res.status(400);
     res.send({ error: "le champ nom est manquant ou vide" });
-  } else if (tournamentRepository.tournamentExist(tournamentToAdd.name)) {
+    return;
+  }
+  if (tournamentRepository.tournamentExist(tournamentToAdd.name)) {
     res.status(400);
     res.send({ error: "le nom est déjà pris" });
   } else {

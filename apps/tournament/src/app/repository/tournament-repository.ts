@@ -12,7 +12,7 @@ export class TournamentRepository {
   }
 
   public tournamentExist(tournamentName: string): Boolean {
-    for (let [key, value] of this.tournaments) {
+    for (let [, value] of this.tournaments) {
       if (value.name == tournamentName) {
         return true;
       }
