@@ -11,6 +11,15 @@ export class TournamentRepository {
     return this.tournaments.get(tournamentId);
   }
 
+  public tournamentExist(tournamentName: string): Boolean {
+    for (let [, value] of this.tournaments) {
+      if (value.name == tournamentName) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // public deleteTournament(tournamentId: string): void {
   //   this.tournaments.delete(tournamentId);
   // }
